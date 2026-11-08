@@ -1,0 +1,10 @@
+{
+  // Site statique servi par Cloudflare Workers (les données viennent de Convex).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marday235",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
