@@ -166,3 +166,17 @@ test("internal seed", async () => {
   const t = convexTest(schema, modules);
   expect(await t.mutation(internal.admin.seedInit, {})).toBe(true);
 });
+
+test("login with email + personal code, rate limited", async () => {
+  const t = convexTest(schema, modules);
+  const { sha256 } = await import("./lib");
+  process.env.ADMIN_CODE_HASH = await sha256("secret-code");
+  expect(await t.mutation(api.auth.loginWithCode, { email: "admin@example.com", code: "bad" })).toMatchObject({ ok: false, error: "Email ou code incorrect." });
+  expect(await t.mutation(api.auth.loginWithCode, { email: "x@example.com", code: "secret-code" })).toMatchObject({ ok: false });
+  const res = await t.mutation(api.auth.loginWithCode, { email: " Admin@Example.com ", code: "secret-code" });
+  if (!res.ok) throw new Error(res.error);
+  expect(await t.query(api.auth.isValid, { token: res.token })).toBe(true);
+  for (let i = 0; i < 2; i++) await t.mutation(api.auth.loginWithCode, { email: "admin@example.com", code: "bad" });
+  expect(await t.mutation(api.auth.loginWithCode, { email: "admin@example.com", code: "secret-code" })).toMatchObject({ ok: false, error: expect.stringContaining("Trop") });
+  delete process.env.ADMIN_CODE_HASH;
+});

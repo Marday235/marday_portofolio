@@ -1,5 +1,6 @@
 import { v, ConvexError } from "convex/values";
 import { action, internalMutation, mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { adminEmail, hitRateLimit, randomHex, sha256 } from "./lib";
 import { sendEmail } from "./lumail";
@@ -77,18 +78,48 @@ export const verifyCode = mutation({
       return { ok: false as const, error: "Code incorrect." };
     }
     await ctx.db.delete(row._id);
-    // Nettoyage des sessions expirées
-    for (const s of await ctx.db.query("sessions").collect()) {
-      if (s.expiresAt < Date.now()) await ctx.db.delete(s._id);
-    }
-    const token = randomHex(32);
-    await ctx.db.insert("sessions", {
-      tokenHash: await sha256(token),
-      expiresAt: Date.now() + SESSION_TTL,
-    });
-    return { ok: true as const, token };
+    return { ok: true as const, token: await createSession(ctx) };
   },
 });
+
+/**
+ * Connexion directe : email admin + code personnel.
+ * Le code n'est jamais stocké en clair : Convex garde seulement son empreinte SHA-256
+ * dans ADMIN_CODE_HASH. Les erreurs sont renvoyées (pas levées) pour que le
+ * compteur anti-force-brute soit bien enregistré.
+ */
+export const loginWithCode = mutation({
+  args: { email: v.string(), code: v.string() },
+  handler: async (ctx, { email, code }) => {
+    const admin = adminEmail();
+    const codeHash = (process.env.ADMIN_CODE_HASH ?? "").trim().toLowerCase();
+    if (!admin || !codeHash) {
+      return { ok: false as const, error: "La connexion par code n'est pas configurée dans Convex." };
+    }
+    if (!(await hitRateLimit(ctx, "login-code", 5, 15 * 60 * 1000))) {
+      return { ok: false as const, error: "Trop d'essais. Réessayez dans 15 minutes." };
+    }
+    const emailOk = email.trim().toLowerCase() === admin;
+    const codeOk = (await sha256(code.trim())) === codeHash;
+    if (!emailOk || !codeOk) {
+      return { ok: false as const, error: "Email ou code incorrect." };
+    }
+    return { ok: true as const, token: await createSession(ctx) };
+  },
+});
+
+async function createSession(ctx: MutationCtx) {
+  // Nettoyage des sessions expirées
+  for (const s of await ctx.db.query("sessions").collect()) {
+    if (s.expiresAt < Date.now()) await ctx.db.delete(s._id);
+  }
+  const token = randomHex(32);
+  await ctx.db.insert("sessions", {
+    tokenHash: await sha256(token),
+    expiresAt: Date.now() + SESSION_TTL,
+  });
+  return token;
+}
 
 export const isValid = query({
   args: { token: v.string() },

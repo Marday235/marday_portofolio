@@ -1,7 +1,7 @@
 import { Component, useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { NavLink, Route, Routes, Link } from "react-router";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { Briefcase, Camera, ExternalLink, FolderKanban, Inbox, LoaderCircle, LogOut, Quote, Settings, Wrench } from "lucide-react";
 import { api } from "../../convex/_generated/api";
@@ -76,36 +76,20 @@ class SessionBoundary extends Component<{ children: ReactNode; onExpired: () => 
   }
 }
 
-/* ───────────── Connexion par code email ───────────── */
+/* ───────────── Connexion : email + code personnel ───────────── */
 
 function Login() {
   const { setToken } = useSession();
-  const requestCode = useAction(api.auth.requestCode);
-  const verifyCode = useMutation(api.auth.verifyCode);
-  const [step, setStep] = useState<"email" | "code">("email");
+  const loginWithCode = useMutation(api.auth.loginWithCode);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function onEmail(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
-      await requestCode({ email });
-      setStep("code");
-      toast.success("Si cette adresse est la bonne, un code vient d'être envoyé.");
-    } catch (err) {
-      toast.error(errorMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function onCode(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      const res = await verifyCode({ code });
+      const res = await loginWithCode({ email, code });
       if (res.ok) setToken(res.token);
       else toast.error(res.error);
     } catch (err) {
@@ -122,39 +106,17 @@ function Login() {
         <div className="p-7">
           <Logo />
           <h1 className="mt-6 text-2xl font-bold">Espace admin</h1>
-          {step === "email" ? (
-            <form onSubmit={onEmail} className="mt-6 space-y-4">
-              <Field label="Votre adresse email">
-                <Input type="email" required autoFocus autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </Field>
-              <Button type="submit" className="w-full" disabled={busy}>
-                {busy && <LoaderCircle className="animate-spin" />} Recevoir un code
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={onCode} className="mt-6 space-y-4">
-              <p className="text-sm text-muted">
-                Entrez le code à 6 chiffres reçu sur <b className="text-fg">{email}</b>.
-              </p>
-              <Input
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="\d{6}"
-                maxLength={6}
-                required
-                autoFocus
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                className="text-center font-display text-2xl tracking-[0.5em]"
-              />
-              <Button type="submit" className="w-full" disabled={busy || code.length !== 6}>
-                {busy && <LoaderCircle className="animate-spin" />} Se connecter
-              </Button>
-              <button type="button" className="w-full text-sm text-muted hover:text-fg cursor-pointer" onClick={() => setStep("email")}>
-                Changer d'adresse ou renvoyer un code
-              </button>
-            </form>
-          )}
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            <Field label="Adresse email">
+              <Input type="email" required autoFocus autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+            <Field label="Code">
+              <Input type="password" required autoComplete="current-password" value={code} onChange={(e) => setCode(e.target.value)} />
+            </Field>
+            <Button type="submit" className="w-full" disabled={busy}>
+              {busy && <LoaderCircle className="animate-spin" />} Se connecter
+            </Button>
+          </form>
         </div>
       </div>
     </div>
