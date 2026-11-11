@@ -4,6 +4,7 @@ import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import type { HomeData } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Img } from "@/components/ui/img";
 
 type Photo = HomeData["gallery"][number];
 
@@ -19,7 +20,22 @@ export default function Gallery({ photos }: { photos?: Photo[] }) {
   const { t, L } = useLang();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState<number | null>(null);
-  if (!photos || photos.length === 0) return null;
+  if (!photos) {
+    return (
+      <section className="relative overflow-hidden pt-24 sm:pt-32" aria-hidden="true">
+        <div className="container-x space-y-5">
+          <div className="skeleton h-8 w-32 rounded-full" />
+          <div className="skeleton h-12 w-2/3 rounded-xl sm:h-16" />
+        </div>
+        <div className="mt-12 flex gap-4 pl-5 sm:pl-8">
+          {[0, 1, 2, 3, 0, 1].map((s, k) => (
+            <div key={k} className={cn("skeleton shrink-0 rounded-[1.75rem]", SHAPES[s])} />
+          ))}
+        </div>
+      </section>
+    );
+  }
+  if (photos.length === 0) return null;
 
   // Deux bandes qui partent en sens inverse ; chaque bande est doublée pour une boucle sans couture
   const half = Math.ceil(photos.length / 2);
@@ -147,17 +163,17 @@ function Row({
                 onClick={() => onOpen(i)}
                 tabIndex={dup ? -1 : 0}
                 className={cn(
-                  "group relative block overflow-hidden rounded-[1.75rem] bg-surface-2 ring-1 ring-white/10 transition-all duration-500 hover:-translate-y-1.5 hover:ring-td-yellow/60 hover:shadow-[0_30px_60px_-20px_rgba(254,203,0,0.35)] cursor-zoom-in",
+                  "skeleton group relative block overflow-hidden rounded-[1.75rem] ring-1 ring-white/10 transition-all duration-500 hover:-translate-y-1.5 hover:ring-td-yellow/60 hover:shadow-[0_30px_60px_-20px_rgba(254,203,0,0.35)] cursor-zoom-in",
                   SHAPES[(k + offset) % SHAPES.length],
                 )}
               >
-                <img
+                <Img
                   src={p.url}
                   alt={caption || "Photo"}
                   loading="lazy"
                   decoding="async"
                   draggable={false}
-                  className="absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                  className="absolute inset-0 size-full object-cover duration-[1200ms] group-hover:scale-110"
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20" />
                 <span className="absolute left-4 top-3 font-display text-2xl font-bold text-white/90 drop-shadow">
@@ -221,6 +237,7 @@ function Lightbox({ photos, start, onClose }: { photos: Photo[]; start: number; 
       </div>
 
       <div className="relative flex flex-1 items-center justify-center overflow-hidden px-2 sm:px-16">
+        <div className="loader-bar absolute inset-x-0 top-0 h-[2px] overflow-hidden opacity-60" aria-hidden="true" />
         <AnimatePresence initial={false} custom={dir} mode="popLayout">
           <motion.img
             key={photo._id}
@@ -273,7 +290,7 @@ function Lightbox({ photos, start, onClose }: { photos: Photo[]; start: number; 
             )}
             aria-label={`${i + 1}`}
           >
-            <img src={p.url} alt="" className="h-full w-full object-cover" loading="lazy" />
+            <Img src={p.url} alt="" className="h-full w-full object-cover" loading="lazy" />
           </button>
         ))}
       </div>

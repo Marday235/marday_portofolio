@@ -72,9 +72,45 @@
   100% { background-position: -100% 0; }
 }
 
+/* ───── Chargement : squelettes brillants, barre de progression ───── */
+.skeleton {
+  background-color: var(--color-surface-2);
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 255 255 / 0.06) 40%,
+    rgb(254 203 0 / 0.05) 50%,
+    rgb(255 255 255 / 0.06) 60%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-sweep 1.6s ease-in-out infinite;
+}
+.loader-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--color-td-blue), var(--color-td-yellow), var(--color-td-red), transparent);
+  animation: loader-slide 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes skeleton-sweep {
+  0% { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+@keyframes loader-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+@keyframes float {
+  50% { transform: translateY(-6px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .shiny { animation: none; }
+  .skeleton, .loader-bar::after { animation: none; }
 }
 
 /* Galerie : bandes qui défilent en continu (GPU, aucun JavaScript) */

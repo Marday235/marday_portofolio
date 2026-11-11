@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Navbar from "@/components/site/Navbar";
 import Footer from "@/components/site/Footer";
+import { hideSplash } from "@/lib/splash";
 
 /** Gère le défilement : vers l'ancre (#projets…) ou en haut de page. */
 function ScrollManager() {
@@ -26,6 +27,17 @@ function ScrollManager() {
 
 export default function SiteLayout() {
   const data = useQuery(api.public.home);
+
+  // L'écran d'accueil part dès que les données arrivent, ou après 2,5 s
+  // au plus tard : les squelettes prennent alors le relais.
+  useEffect(() => {
+    if (data !== undefined) hideSplash();
+  }, [data]);
+  useEffect(() => {
+    const id = setTimeout(hideSplash, 2500);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <>
       <ScrollManager />

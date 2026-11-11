@@ -8,6 +8,7 @@ import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import Logo from "@/components/site/Logo";
+import PageLoader from "@/components/fx/PageLoader";
 import { cn, errorMessage } from "@/lib/utils";
 import { SessionProvider, useSession } from "./session";
 import { Toggle } from "./ui";
@@ -35,13 +36,7 @@ function Gate() {
   const { token, setToken } = useSession();
   const valid = useQuery(api.auth.isValid, { token });
   if (!token || valid === false) return <Login />;
-  if (valid === undefined) {
-    return (
-      <div className="grid min-h-dvh place-items-center">
-        <LoaderCircle className="size-6 animate-spin text-muted" />
-      </div>
-    );
-  }
+  if (valid === undefined) return <PageLoader label="Vérification de la session…" />;
   return (
     <SessionBoundary onExpired={() => setToken(null)}>
       <Shell />

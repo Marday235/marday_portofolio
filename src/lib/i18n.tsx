@@ -71,6 +71,7 @@ const dict = {
   err_rate_limit: { fr: "Trop de messages envoyés. Réessayez dans une heure ou passez par WhatsApp.", en: "Too many messages. Try again in an hour or use WhatsApp." },
   err_generic: { fr: "L'envoi a échoué. Réessayez ou passez par WhatsApp.", en: "Sending failed. Please retry or use WhatsApp." },
   goBack: { fr: "Retour", en: "Back" },
+  loading: { fr: "Chargement…", en: "Loading…" },
   problem: { fr: "Le problème", en: "The problem" },
   solution: { fr: "La solution", en: "The solution" },
   stack: { fr: "Technologies", en: "Tech stack" },

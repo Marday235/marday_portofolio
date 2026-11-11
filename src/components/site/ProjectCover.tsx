@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Img } from "@/components/ui/img";
 
 const PALETTES = [
   ["#2f6bff", "#0b1a4a"],
@@ -29,12 +30,13 @@ export default function ProjectCover({
 }) {
   if (image) {
     return (
-      <div className={cn("overflow-hidden bg-surface-2", className)}>
-        <img
+      <div className={cn("skeleton overflow-hidden", className)}>
+        <Img
           src={image}
           alt={title}
           loading="lazy"
-          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+          decoding="async"
+          className="h-full w-full object-cover object-top group-hover:scale-[1.03]"
         />
       </div>
     );

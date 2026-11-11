@@ -8,6 +8,7 @@ import { api } from "../../convex/_generated/api";
 import Reveal from "@/components/fx/Reveal";
 import ProjectCover from "@/components/site/ProjectCover";
 import { Button } from "@/components/ui/button";
+import { Img } from "@/components/ui/img";
 import NotFound from "./NotFound";
 import { useLang } from "@/lib/i18n";
 
@@ -30,10 +31,21 @@ export default function ProjectPage() {
 
   if (data === undefined) {
     return (
-      <div className="container-x pt-32">
-        <div className="h-8 w-40 animate-pulse rounded-full bg-white/5" />
-        <div className="mt-6 h-14 w-2/3 animate-pulse rounded-xl bg-white/5" />
-        <div className="card mt-10 aspect-[16/9] animate-pulse" />
+      <div className="container-x pt-28 sm:pt-32" aria-busy="true" aria-label={t("loading")}>
+        <div className="skeleton h-9 w-28 rounded-full" />
+        <div className="mt-6 max-w-3xl space-y-4">
+          <div className="skeleton h-3 w-14 rounded-full" />
+          <div className="skeleton h-11 w-3/4 rounded-xl sm:h-14" />
+          <div className="space-y-2.5 pt-2">
+            <div className="skeleton h-4 w-full rounded-full" />
+            <div className="skeleton h-4 w-4/5 rounded-full" />
+          </div>
+          <div className="flex gap-2 pt-3">
+            <div className="skeleton h-11 w-36 rounded-full" />
+            <div className="skeleton h-11 w-28 rounded-full" />
+          </div>
+        </div>
+        <div className="card skeleton mt-12 aspect-[16/9]" />
       </div>
     );
   }
@@ -155,7 +167,8 @@ export default function ProjectPage() {
             <button className="absolute right-4 top-4 grid size-10 place-items-center rounded-full bg-white/10 text-white" aria-label="Fermer">
               <X />
             </button>
-            <img src={zoom} alt={title} className="max-h-full max-w-full rounded-xl object-contain" />
+            <div className="loader-bar absolute inset-x-0 top-0 h-[3px] overflow-hidden" aria-hidden="true" />
+            <Img src={zoom} alt={title} className="relative max-h-full max-w-full rounded-xl object-contain" />
           </motion.div>
         )}
       </AnimatePresence>

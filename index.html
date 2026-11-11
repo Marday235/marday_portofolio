@@ -21,9 +21,73 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <!-- Polices chargées sans bloquer l'affichage (sinon écran blanc en connexion lente) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
+
+    <!-- Écran de chargement : s'affiche instantanément, avant même le JavaScript -->
+    <style>
+      html, body { background: #07070d; margin: 0; }
+      #splash {
+        position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
+        background: #07070d; color: #ececf1;
+        font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        transition: opacity .5s ease, visibility .5s ease;
+      }
+      #splash.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+      #splash::before {
+        content: ""; position: absolute; inset: 0;
+        background: radial-gradient(40rem 40rem at 50% 45%, rgba(47,107,255,.10), transparent 60%);
+      }
+      .sp-bar { position: absolute; left: 0; right: 0; top: 0; height: 3px; overflow: hidden; }
+      .sp-bar::after {
+        content: ""; position: absolute; inset: 0; width: 40%;
+        background: linear-gradient(90deg, transparent, #2f6bff, #fecb00, #e5304a, transparent);
+        animation: sp-slide 1.4s cubic-bezier(.65,0,.35,1) infinite;
+      }
+      .sp-box { position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+      .sp-logo { width: 84px; height: 84px; animation: sp-float 2.4s ease-in-out infinite; }
+      .sp-logo .stroke { stroke-dasharray: 120; stroke-dashoffset: 120; animation: sp-draw 1.6s cubic-bezier(.65,0,.35,1) infinite alternate; }
+      .sp-logo .seg { transform-box: fill-box; transform-origin: left center; transform: scaleX(0); animation: sp-grow 1.6s cubic-bezier(.65,0,.35,1) infinite alternate; }
+      .sp-logo .s2 { animation-delay: .15s; }
+      .sp-logo .s3 { animation-delay: .3s; }
+      .sp-name { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+      .sp-name b:nth-child(1) { color: #2f6bff; } .sp-name b:nth-child(2) { color: #fecb00; } .sp-name b:nth-child(3) { color: #e5304a; }
+      .sp-slow {
+        position: absolute; top: calc(100% + 18px); white-space: nowrap; font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        font-size: 13px; color: #9a9ab0; opacity: 0; animation: sp-fade .6s ease 6s forwards;
+      }
+      @keyframes sp-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+      @keyframes sp-float { 50% { transform: translateY(-6px); } }
+      @keyframes sp-draw { 0% { stroke-dashoffset: 120; } 70%, 100% { stroke-dashoffset: 0; } }
+      @keyframes sp-grow { 0%, 30% { transform: scaleX(0); } 80%, 100% { transform: scaleX(1); } }
+      @keyframes sp-fade { to { opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) {
+        .sp-logo, .sp-bar::after { animation: none; }
+        .sp-logo .stroke { animation: none; stroke-dashoffset: 0; }
+        .sp-logo .seg { animation: none; transform: none; }
+      }
+    </style>
   </head>
   <body>
+    <div id="splash" role="status" aria-live="polite">
+      <div class="sp-bar"></div>
+      <div class="sp-box">
+        <svg class="sp-logo" viewBox="0 0 64 64" aria-hidden="true">
+          <rect x="1" y="1" width="62" height="62" rx="15" fill="#171724" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+          <g fill="none" stroke="#ececf1" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline class="stroke" points="14,38 20.5,18 27,38"/>
+            <line class="stroke" x1="16.6" y1="30" x2="24.4" y2="30"/>
+            <polyline class="stroke" points="30,18 35,38 40,24 45,38 50,18"/>
+          </g>
+          <rect class="seg" x="14" y="45" width="12" height="4" rx="2" fill="#2f6bff"/>
+          <rect class="seg s2" x="26" y="45" width="12" height="4" fill="#fecb00"/>
+          <rect class="seg s3" x="38" y="45" width="12" height="4" rx="2" fill="#e5304a"/>
+        </svg>
+        <div class="sp-name">Marday <b>2</b><b>3</b><b>5</b></div>
+        <span class="sp-slow">Connexion lente… encore un instant</span>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

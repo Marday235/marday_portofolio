@@ -6,6 +6,7 @@ import DotGrid from "@/components/fx/DotGrid";
 import CountUp from "@/components/fx/CountUp";
 import Reveal from "@/components/fx/Reveal";
 import { Button } from "@/components/ui/button";
+import { Img } from "@/components/ui/img";
 import ProjectCover from "./ProjectCover";
 import Socials from "./Socials";
 import { useLang } from "@/lib/i18n";
@@ -103,7 +104,8 @@ export function Hero({ settings }: { settings?: Settings }) {
               style={{ background: "conic-gradient(from 0deg, #2f6bff, #fecb00, #e5304a, #2f6bff)" }}
             />
             <div className="absolute -inset-10 rounded-full bg-td-yellow/10 blur-3xl" />
-            <img
+            <div className="skeleton absolute inset-0 rounded-full border-4 border-ink" aria-hidden="true" />
+            <Img
               src="/marday.webp"
               alt="Abdoulaye Wardougou"
               width={640}
@@ -125,7 +127,21 @@ export function Hero({ settings }: { settings?: Settings }) {
 
 export function Stats({ settings }: { settings?: Settings }) {
   const { L } = useLang();
-  if (!settings || settings.stats.length === 0) return null;
+  if (!settings) {
+    return (
+      <section className="container-x" aria-hidden="true">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="card flex flex-col items-center gap-3 px-4 py-6 sm:py-8">
+              <div className="skeleton h-9 w-16 rounded-lg sm:h-12 sm:w-24" />
+              <div className="skeleton h-3 w-20 rounded-full sm:w-28" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+  if (settings.stats.length === 0) return null;
   return (
     <section className="container-x">
       <div className={cn("grid gap-3 sm:gap-4", settings.stats.length >= 3 ? "grid-cols-3" : "grid-cols-2")}>
@@ -240,9 +256,26 @@ export function Projects({ data }: { data?: HomeData }) {
     <section className="container-x pt-24 sm:pt-32">
       <SectionHeading id="projets" eyebrow={t("projectsEyebrow")} title={t("projectsTitle")} />
       {!data ? (
-        <div className="space-y-6">
+        <div className="space-y-6" aria-hidden="true">
           {[0, 1].map((i) => (
-            <div key={i} className="card h-[340px] animate-pulse" />
+            <div key={i} className="card grid overflow-hidden lg:grid-cols-2">
+              <div className={cn("skeleton aspect-[16/10] lg:aspect-auto lg:min-h-[340px]", i === 1 && "lg:order-2")} />
+              <div className="flex flex-col justify-center gap-4 p-6 sm:p-10">
+                <div className="skeleton h-3 w-12 rounded-full" />
+                <div className="skeleton h-8 w-3/4 rounded-lg" />
+                <div className="space-y-2.5">
+                  <div className="skeleton h-3 w-full rounded-full" />
+                  <div className="skeleton h-3 w-11/12 rounded-full" />
+                  <div className="skeleton h-3 w-2/3 rounded-full" />
+                </div>
+                <div className="flex gap-1.5">
+                  {[14, 20, 16].map((w) => (
+                    <div key={w} className="skeleton h-6 rounded-full" style={{ width: `${w * 4}px` }} />
+                  ))}
+                </div>
+                <div className="skeleton mt-2 h-11 w-40 rounded-full" />
+              </div>
+            </div>
           ))}
         </div>
       ) : (
@@ -274,7 +307,26 @@ export function Projects({ data }: { data?: HomeData }) {
 
 export function Journey({ items }: { items?: HomeData["timeline"] }) {
   const { t, L } = useLang();
-  if (!items || items.length === 0) return null;
+  if (!items) {
+    return (
+      <section className="container-x pt-24 sm:pt-32">
+        <SectionHeading id="parcours" eyebrow={t("journeyEyebrow")} title={t("journeyTitle")} />
+        <ol className="relative ml-3 border-l border-white/10 sm:ml-4" aria-hidden="true">
+          {[0, 1].map((i) => (
+            <li key={i} className="relative pb-10 pl-8 last:pb-0 sm:pl-12">
+              <span className="skeleton absolute -left-[17px] top-0 size-8 rounded-full border-4 border-ink" />
+              <div className="card space-y-3 p-5 sm:p-6">
+                <div className="skeleton h-3 w-32 rounded-full" />
+                <div className="skeleton h-6 w-1/2 rounded-lg" />
+                <div className="skeleton h-3 w-5/6 rounded-full" />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  }
+  if (items.length === 0) return null;
   return (
     <section className="container-x pt-24 sm:pt-32">
       <SectionHeading id="parcours" eyebrow={t("journeyEyebrow")} title={t("journeyTitle")} />
@@ -317,7 +369,26 @@ export function Journey({ items }: { items?: HomeData["timeline"] }) {
 
 export function Skills({ items }: { items?: HomeData["skills"] }) {
   const { t } = useLang();
-  if (!items || items.length === 0) return null;
+  if (!items) {
+    return (
+      <section className="container-x pt-24 sm:pt-32">
+        <SectionHeading id="competences" eyebrow={t("skillsEyebrow")} title={t("skillsTitle")} />
+        <div className="grid gap-5 md:grid-cols-3" aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="card space-y-4 p-6">
+              <div className="skeleton h-5 w-28 rounded-lg" />
+              <div className="flex flex-wrap gap-2">
+                {[18, 24, 14, 20, 16].map((w, k) => (
+                  <div key={k} className="skeleton h-9 rounded-xl" style={{ width: `${w * 4}px` }} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+  if (items.length === 0) return null;
   const groups = (["front", "back", "tools"] as const)
     .map((cat) => ({ cat, list: items.filter((s) => s.category === cat) }))
     .filter((g) => g.list.length > 0);

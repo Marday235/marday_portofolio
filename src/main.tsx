@@ -9,6 +9,11 @@ import SiteLayout from "@/pages/SiteLayout";
 import HomePage from "@/pages/HomePage";
 import ProjectPage from "@/pages/ProjectPage";
 import NotFound from "@/pages/NotFound";
+import PageLoader from "@/components/fx/PageLoader";
+import { hideSplash } from "@/lib/splash";
+
+// L'admin a son propre chargeur : on retire l'écran d'accueil tout de suite.
+if (location.pathname.startsWith("/admin")) hideSplash();
 
 // L'admin est chargé à part : les visiteurs ne téléchargent pas son code.
 const AdminApp = lazy(() => import("@/admin/AdminApp"));
@@ -43,7 +48,7 @@ createRoot(document.getElementById("root")!).render(
             <Route
               path="admin/*"
               element={
-                <Suspense fallback={<div className="grid min-h-dvh place-items-center text-muted">Chargement…</div>}>
+                <Suspense fallback={<PageLoader label="Ouverture de l'espace admin…" />}>
                   <AdminApp />
                 </Suspense>
               }
